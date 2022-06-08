@@ -1,4 +1,5 @@
 sealed class Screen {
-    object ClientUi : Screen()
-    object InputForm: Screen()
+    object MenuScreen : Screen()
+    object InputFormScreen : Screen()
+    object ShowResultScreen : Screen()
 }

@@ -1,24 +1,14 @@
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.rounded.AccountBox
-import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.imageFromResource
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -33,51 +23,140 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowSize
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @ExperimentalUnitApi
 fun main() = application {
 
-//    val client = Client("localhost", 9999)
-//    val clientNumber = client.reader.nextLine().toInt()
-    for (i in 1..1) {
+    val mainClient = Client("localhost", 9999, 0)
+    val clientNumber = mainClient.reader.nextLine().toInt()
+    for (i in 1..clientNumber) {
+        val client = Client("localhost", 9999, i)
         Window(
             state = WindowState(size = WindowSize(850.dp, 850.dp)),
 //            icon = rememberVectorPainter(Icons.Default.ThumbUp),
             onCloseRequest = ::exitApplication, title = "Client $i"
         ) {
-            Main()
+            Main(client)
         }
     }
 
 }
 
 @Composable
-fun ClientUi(
-    onClick: () -> Unit
+fun CustomSnackBar(
+    text: MutableState<String>,
+    visible: MutableState<Boolean>,
+    color: MutableState<Color>
 ) {
-    DesktopMaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = onClick
-            ) {
-                Text(
-                    "اضافه کردن دانشجو",
-                    fontFamily = FontFamily(
-                        Font(resource = "vazir.ttf")
-                    )
-                )
-            }
+    Box(
+        modifier = Modifier.width(500.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedVisibility(visible.value) {
+            Snackbar(
+                content = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = text.value,
+                            style = TextStyle(
+                                fontFamily = FontFamily(
+                                    Font(resource = "vazir.ttf", weight = FontWeight.Bold)
+                                ),
+                                textAlign = TextAlign.Right,
+                                textDirection = TextDirection.Rtl,
+                            ),
+                        )
+                    }
+                },
+                modifier = Modifier.padding(16.dp),
+                backgroundColor = color.value,
+                contentColor = Color.White
+            )
         }
     }
 }
 
 @ExperimentalUnitApi
 @Composable
-fun InputForm() {
+fun MenuScreen(
+    addStudent: () -> Unit,
+    average: () -> Unit,
+    sortAverage: () -> Unit,
+    maxAverage: () -> Unit,
+    minAverage: () -> Unit
+) {
+    DesktopMaterialTheme {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(Modifier.height(50.dp))
+            Text(
+                text = "منو",
+                style = TextStyle(
+                    fontSize = TextUnit(32f, TextUnitType.Sp),
+                    fontFamily = FontFamily(
+                        Font(resource = "vazir.ttf", weight = FontWeight.Bold)
+                    ),
+                    textAlign = TextAlign.Right,
+                    textDirection = TextDirection.Rtl,
+                ),
+            )
+            Spacer(Modifier.height(30.dp))
+            MyButton(
+                text = "اضافه کردن دانشجو",
+                onClick = addStudent
+            )
+            MyButton(
+                text = "معدل دانشجوها",
+                onClick = average
+            )
+            MyButton(
+                text = "معدل مرتب شده دانشجوها",
+                onClick = sortAverage
+            )
+            MyButton(
+                text = "بیشترین معدل",
+                onClick = maxAverage
+            )
+            MyButton(
+                text = "کمترین معدل",
+                onClick = minAverage
+            )
+        }
+    }
+}
+
+@Composable
+fun MyButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = Modifier.size(250.dp, 50.dp),
+        shape = RoundedCornerShape(15.dp),
+        onClick = onClick
+    ) {
+        Text(
+            text = text,
+            fontFamily = FontFamily(
+                Font(resource = "vazir.ttf")
+            )
+        )
+    }
+    Spacer(Modifier.height(20.dp))
+}
+
+@ExperimentalUnitApi
+@Composable
+fun InputFormScreen(client: Client) {
     var firstName = remember { mutableStateOf("") }
     var lastName = remember { mutableStateOf("") }
     var nationalCode = remember { mutableStateOf("") }
@@ -88,88 +167,140 @@ fun InputForm() {
     var courseFour = remember { mutableStateOf("") }
     var courseFive = remember { mutableStateOf("") }
 
-    DesktopMaterialTheme {
+    val textFieldList = listOf(
+        firstName,
+        lastName,
+        nationalCode,
+        identityNumber,
+        courseOne,
+        courseTwo,
+        courseThree,
+        courseFour,
+        courseFive
+    )
 
-        Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(
-                rememberScrollState()
+    val scope = rememberCoroutineScope()
+    var visible = remember { mutableStateOf(false) }
+    var snackBarMessage = remember { mutableStateOf("") }
+    var snackBarColor = remember { mutableStateOf(Color(0xffff0000)) }
+
+    var checkInput = true
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(
+            rememberScrollState()
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+        Text(
+            text = "اطلاعات دانشجو",
+            style = TextStyle(
+                fontSize = TextUnit(32f, TextUnitType.Sp),
+                fontFamily = FontFamily(
+                    Font(resource = "vazir.ttf", weight = FontWeight.Bold)
+                )
             ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround
-        ) {
+        )
+        Spacer(Modifier.height(16.dp))
+        InputTextField(
+            text = firstName,
+            label = "نام",
+            limit = 50,
+            rtl = true
+        )
+        InputTextField(
+            text = lastName,
+            label = "نام خانوادگی",
+            limit = 50,
+            rtl = true
+        )
+        InputTextField(
+            text = nationalCode,
+            label = "کد ملی",
+            limit = 10,
+            rtl = false
+        )
+        InputTextField(
+            text = identityNumber,
+            label = "شماره شناسنامه",
+            limit = 10,
+            rtl = false
+        )
+        InputTextField(
+            text = courseOne,
+            label = "درس یک",
+            limit = 5,
+            rtl = false
+        )
+        InputTextField(
+            text = courseTwo,
+            label = "درس دو",
+            limit = 5,
+            rtl = false
+        )
+        InputTextField(
+            text = courseThree,
+            label = "درس سه",
+            limit = 5,
+            rtl = false
+        )
+        InputTextField(
+            text = courseFour,
+            label = "درس چهار",
+            limit = 5,
+            rtl = false
+        )
+        InputTextField(
+            text = courseFive,
+            label = "درس پنج",
+            limit = 5,
+            rtl = false
+        )
+        Spacer(Modifier.height(16.dp))
+
+        Button(
+            shape = RoundedCornerShape(15.dp),
+            onClick = {
+                checkInput = true
+                for (textField in textFieldList) {
+                    if (textField.value == "") {
+                        snackBarMessage.value = "همه موارد باید تکمیل شود!"
+                        snackBarColor.value = Color(0xffff0000)
+                        scope.launch {
+                            visible.value = true
+                            delay(2000)
+                            visible.value = false
+                        }
+                        checkInput = false
+                    }
+                }
+                if (checkInput) {
+                    client.write(client.id.toString())
+                    for (textField in textFieldList) {
+                        client.write(textField.value)
+                        textField.value = ""
+                    }
+                    snackBarMessage.value = "دانشجو با موفقیت اضافه شد"
+                    snackBarColor.value = Color(0xff00aa00)
+                    scope.launch {
+                        visible.value = true
+                        delay(2000)
+                        visible.value = false
+                    }
+                }
+            }) {
             Text(
-                text = "اطلاعات دانشجو",
+                text = "تایید",
                 style = TextStyle(
-                    fontSize = TextUnit(32f, TextUnitType.Sp),
                     fontFamily = FontFamily(
                         Font(resource = "vazir.ttf", weight = FontWeight.Bold)
-                    ),
-                    textAlign = TextAlign.Right,
-                    textDirection = TextDirection.Rtl,
-                ),
+                    )
+                )
             )
-            Spacer(Modifier.height(16.dp))
-            InputTextField(
-                text = firstName,
-                label = "نام",
-                limit = 50,
-                rtl = true
-            )
-            InputTextField(
-                text = lastName,
-                label = "نام خانوادگی",
-                limit = 50,
-                rtl = true
-            )
-            InputTextField(
-                text = nationalCode,
-                label = "کد ملی",
-                limit = 10,
-                rtl = false
-            )
-            InputTextField(
-                text = identityNumber,
-                label = "شماره شناسنامه",
-                limit = 10,
-                rtl = false
-            )
-            InputTextField(
-                text = courseOne,
-                label = "درس یک",
-                limit = 5,
-                rtl = false
-            )
-            InputTextField(
-                text = courseTwo,
-                label = "درس دو",
-                limit = 5,
-                rtl = false
-            )
-            InputTextField(
-                text = courseThree,
-                label = "درس سه",
-                limit = 5,
-                rtl = false
-            )
-            InputTextField(
-                text = courseFour,
-                label = "درس چهار",
-                limit = 5,
-                rtl = false
-            )
-            InputTextField(
-                text = courseFive,
-                label = "درس پنج",
-                limit = 5,
-                rtl = false
-            )
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = {}) {
-                Text("تایید")
-            }
-
         }
     }
+    CustomSnackBar(snackBarMessage, visible, snackBarColor)
 
 }
 
@@ -210,16 +341,25 @@ fun InputTextField(
 
 }
 
+@Composable
+fun ShowResultScreen() {
+
+}
+
 @ExperimentalUnitApi
 @Composable
-fun Main() {
-    var screenState by remember { mutableStateOf<Screen>(Screen.ClientUi) }
+fun Main(client: Client) {
+    var screenState by remember { mutableStateOf<Screen>(Screen.MenuScreen) }
 
-    when (val state = screenState) {
-        is Screen.ClientUi -> ClientUi(
-            onClick = { screenState = Screen.InputForm }
+    when (screenState) {
+        is Screen.MenuScreen -> MenuScreen(
+            addStudent = { screenState = Screen.InputFormScreen },
+            average = { screenState = Screen.ShowResultScreen },
+            sortAverage = { screenState = Screen.ShowResultScreen },
+            minAverage = { screenState = Screen.ShowResultScreen },
+            maxAverage = { screenState = Screen.ShowResultScreen },
         )
-        is Screen.InputForm -> InputForm()
+        is Screen.InputFormScreen -> InputFormScreen(client)
     }
 
 }
