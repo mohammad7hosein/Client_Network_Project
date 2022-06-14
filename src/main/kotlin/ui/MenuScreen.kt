@@ -49,11 +49,11 @@ fun MenuScreen(
             onClick = addStudent
         )
         MyButton(
-            text = "معدل دانشجوها",
+            text = "معدل دانشجویان",
             onClick = average
         )
         MyButton(
-            text = "معدل مرتب شده دانشجوها",
+            text = "معدل مرتب شده دانشجویان",
             onClick = sortAverage
         )
         MyButton(

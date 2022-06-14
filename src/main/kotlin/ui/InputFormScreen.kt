@@ -1,14 +1,11 @@
 package ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -32,7 +30,10 @@ import ui.component.InputTextField
 
 @ExperimentalUnitApi
 @Composable
-fun InputFormScreen(client: Client, onBackClick: () -> Unit) {
+fun InputFormScreen(
+    client: Client,
+    onBackClick: () -> Unit
+) {
     var firstName = remember { mutableStateOf("") }
     var lastName = remember { mutableStateOf("") }
     var nationalCode = remember { mutableStateOf("") }
@@ -63,14 +64,17 @@ fun InputFormScreen(client: Client, onBackClick: () -> Unit) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         IconButton(
-            modifier = Modifier.align(Alignment.TopStart),
-            onClick = {}) {
-            Icons.Rounded.ArrowBack
+            modifier = Modifier.align(Alignment.TopStart).padding(36.dp),
+            onClick = onBackClick
+        ) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource("angle_left.svg"),
+                contentDescription = "back"
+            )
         }
         Column(
-            modifier = Modifier.align(Alignment.Center).padding(24.dp).verticalScroll(
-                rememberScrollState()
-            ),
+            modifier = Modifier.align(Alignment.Center).padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceAround
         ) {

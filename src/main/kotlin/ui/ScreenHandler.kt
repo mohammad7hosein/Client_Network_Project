@@ -35,9 +35,9 @@ fun ScreenHandler(client: Client) {
         )
         is Screen.InputFormScreen -> InputFormScreen(
             client = client,
-            onBackClick = { Screen.MenuScreen })
+            onBackClick = { screenState = Screen.MenuScreen })
         is Screen.ShowResultScreen -> ShowResultScreen(
             reader = client.reader,
-            onBackClick = { Screen.MenuScreen })
+            onBackClick = { screenState = Screen.MenuScreen })
     }
 }

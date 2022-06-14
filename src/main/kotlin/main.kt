@@ -1,3 +1,4 @@
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -15,8 +16,8 @@ fun main() = application {
     for (i in 1..clientNumber) {
         val client = Client("localhost", 9999, i)
         Window(
-            state = WindowState(size = WindowSize(850.dp, 850.dp)),
-//            icon = rememberVectorPainter(Icons.Default.ThumbUp),
+            state = WindowState(size = WindowSize(800.dp, 800.dp)),
+            icon = painterResource("img.png"),
             onCloseRequest = ::exitApplication, title = "model.Client $i"
         ) {
             ScreenHandler(client)
